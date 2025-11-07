@@ -1,27 +1,8 @@
-EXT = c
-CXX = gcc
-EXEC = exe
- 
-CXXFLAGS = -Wall -W -pedantic 
-LDFLAGS = 
- 
- 
-OBJDIR = obj
-SRC = $(wildcard *.$(EXT))
-OBJ = $(SRC:.$(EXT)=.o)
-OBJ := $(addprefix $(OBJDIR)/, $(OBJ))
- 
-all: $(EXEC)
- 
-$(EXEC): $(OBJ)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
- 
-$(OBJDIR)/%.o: %.$(EXT)
-	@$(CXX) -o $@ -c $< $(CXXFLAGS)
- 
-clean:
-	@rm -rf $(OBJDIR)/*.o
-	@rm -f $(EXEC)
- 
-install: $(EXEC)
-	@cp $(EXEC) /usr/bin/
+prog : testListe.o liste.o
+	gcc -o prog testListe.o liste.o -lm
+
+testListe.o : testListe.c
+	gcc -c testListe.c
+
+liste.o : liste.c
+	gcc -c liste.c
