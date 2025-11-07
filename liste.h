@@ -1,3 +1,6 @@
+#ifndef LISTE_H
+#define LISTE_H
+
 typedef struct node {
     void* val;
     node_t* next;
@@ -20,3 +23,5 @@ node_t * list_headRemove(node_t * head); // Suppression de la tête de la liste 
 void list_destroy(node_t * head); // destruction d'une liste //(La libération des données n'est pas prise en charge)
 
 void list_print(node_t * head, void (*fct)(void));
+
+#endif
