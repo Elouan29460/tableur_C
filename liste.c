@@ -7,26 +7,54 @@ node_t * liste_create(void) {
 }
 
 void * list_get_data(const node_t * node) {
-    if (node == NULL) {
-        perror("erreur");
-    }
+    if (!node) return NULL;
     return node->val;
 }
 
 void list_set_data(node_t * node , void * data) {
-    node->val = data;
+    if (node) {
+        node->val = data;
+    }
 }
 
 node_t * list_next(node_t * node) {
+    if (!node) return NULL;
     return node->next;
 }
 
 node_t * list_insert(node_t * head, void * data) {
-    node_t * node = liste_create();
-    head = malloc(sizeof(node_t*));
+    node_t* node = malloc(sizeof(node_t));
+    if (!node) return head;
     node->val = data;
     node->next = head;
     return node;
 }
 
+node_t * list_append(node_t * head, void * data) {
+    node_t * node = malloc(sizeof(node_t));
+    if (!node || !data) return NULL;
+
+    node->next = NULL;
+    node->val = data;
+
+    node_t * node_tmp = head;
+    while (node_tmp->next != NULL) {
+        node_tmp = node_tmp->next;
+    }
+
+    node_tmp->next = node;
+    return head;
+}
+
+node_t * list_remove(node_t * head, void * data) {
+    
+}
+
+void list_print(node_t * head, void (*fct)(void*)) {
+    node_t * ptr = head;
+    while (ptr) {
+        (*fct)(list_get_data(ptr));
+        ptr = list_next(ptr);
+    }
+}
 
