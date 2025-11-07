@@ -8,7 +8,9 @@ typedef struct node {
 
 node_t * liste_create(void); //creation d'une nouvelle liste
 
-void * list_get_data(node_t * node , void * data); //Lire ou écrire la donnée d'un noeud
+void * list_get_data(const node_t * node);
+
+void list_set_data(node_t * node , void * data); //Lire ou écrire la donnée d'un noeud
 
 node_t * list_next(node_t * node); //Obtenir le noeud suivant
 
