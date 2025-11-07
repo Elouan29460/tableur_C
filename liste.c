@@ -76,7 +76,16 @@ node_t * list_headRemove(node_t * head) {
 
     node_t* next = head->next;
     free(head);
-    
+    return next;
+}
+
+void list_destroy(node_t * head) {
+    node_t * curr = head;
+    while (curr) {
+        node_t* next = curr->next;
+        free(curr);
+        curr = next;
+    }
 }
 
 void list_print(node_t * head, void (*fct)(void*)) {
