@@ -1,9 +1,9 @@
 #ifndef LISTE_H
 #define LISTE_H
 
-typedef struct node {
+typedef struct node{
     void* val;
-    node_t* next;
+    struct node* next;
 } node_t;
 
 node_t * liste_create(void); //creation d'une nouvelle liste
