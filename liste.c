@@ -4,7 +4,7 @@
 /**
  * Creation d'une nouvelle liste
  */
-node_t * liste_create(void) {
+node_t * list_create(void) {
     return NULL;
 }
 
@@ -46,16 +46,20 @@ node_t * list_insert(node_t * head, void * data) {
 }
 
 /**
- * Creation et ajout d'un noeud en tête de liste
+ * Creation et ajout d'un noeud en queue de liste
  * Retourne la tête de la liste
  */
 node_t * list_append(node_t * head, void * data) {
     node_t * node = malloc(sizeof(node_t));
-    if (!node || !data) return NULL;
+    if (!node) return head;
 
     node->next = NULL;
     node->val = data;
 
+    if (!head) {
+        return node;
+    }
+    
     node_t * node_tmp = head;
     while (node_tmp->next != NULL) {
         node_tmp = node_tmp->next;

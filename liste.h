@@ -6,7 +6,7 @@ typedef struct node{
     struct node* next;
 } node_t;
 
-node_t * liste_create(void); //creation d'une nouvelle liste
+node_t * list_create(void); //creation d'une nouvelle liste
 
 void * list_get_data(const node_t * node);
 
@@ -16,7 +16,7 @@ node_t * list_next(node_t * node); //Obtenir le noeud suivant
 
 node_t * list_insert(node_t * head, void * data); // Creation et insertion d'un noeud en tête de liste // Retourne la tête de la liste
 
-node_t * list_append(node_t * head, void * data); //Creation et ajout d'un noeud en tête de liste // Retourne la tête de la liste
+node_t * list_append(node_t * head, void * data); //Creation et ajout d'un noeud en queue de liste // Retourne la tête de la liste
 
 node_t * list_remove(node_t * head, void * data); // Suppresion de la première instance d'une donnée dans la liste, retourne la tete de liste
 
