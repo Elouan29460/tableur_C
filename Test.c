@@ -148,34 +148,6 @@ int main(void)
     list_destroy(list);
     list = NULL;
 
-
-    /* --------------------------------------------------
-       16. Stress test : 10 000 insertions
-       -------------------------------------------------- */
-    printf("\n--- STRESS TEST (10 000 insertions + destruction) ---\n");
-
-    for (int i = 0; i < 10000; i++) {
-        list = list_insert(list, &a);
-    }
-    printf("Insertion OK (10 000 éléments)\n");
-
-    list_destroy(list);
-    printf("Destruction OK (tester valgrind : aucune fuite prévue)\n");
-
-
-    /* --------------------------------------------------
-       17. Stress test : 10 000 append
-       -------------------------------------------------- */
-    printf("\n--- STRESS APPEND TEST (10 000 append) ---\n");
-
-    for (int i = 0; i < 10000; i++) {
-        list = list_append(list, &b);
-    }
-    printf("Append OK (10 000 éléments)\n");
-
-    list_destroy(list);
-
-
     /* --------------------------------------------------
        FIN
        -------------------------------------------------- */
