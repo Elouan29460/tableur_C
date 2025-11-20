@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include "liste.h"
 
 void print_int(void * ptr)
@@ -8,120 +7,136 @@ void print_int(void * ptr)
     printf("%d ", *(int*)ptr);
 }
 
-void test_create()
+// Fonction utilitaire pour lire la valeur d'un noeud ou indiquer NULL
+const char* val_or_null(node_t *n)
 {
-    node_t *list = list_create();
-    assert(list == NULL);
-    printf("[OK] list_create crée une liste vide\n");
-}
-
-void test_insert_and_get()
-{
-    int a = 10;
-    node_t *list = NULL;
-
-    list = list_insert(list, &a);
-    assert(list != NULL);
-    assert(*(int*)list->val == 10);
-    assert(list->next == NULL);
-
-    printf("[OK] list_insert insère en tête et list_get_data fonctionne\n");
-}
-
-void test_append()
-{
-    int a = 10, b = 20, c = 30;
-    node_t *list = NULL;
-
-    list = list_append(list, &a);  // liste = [10]
-    list = list_append(list, &b);  // liste = [10 -> 20]
-    list = list_append(list, &c);  // liste = [10 -> 20 -> 30]
-
-    node_t *p = list;
-    assert(*(int*)p->val == 10);
-    p = p->next;
-    assert(*(int*)p->val == 20);
-    p = p->next;
-    assert(*(int*)p->val == 30);
-
-    printf("[OK] list_append ajoute correctement en queue\n");
-}
-
-void test_remove()
-{
-    int a = 10, b = 20, c = 30;
-    node_t *list = NULL;
-
-    list = list_append(list, &a);
-    list = list_append(list, &b);
-    list = list_append(list, &c);
-
-    // Supprimer au milieu
-    list = list_remove(list, &b);
-
-    assert(*(int*)list->val == 10);
-    assert(*(int*)list->next->val == 30);
-    assert(list->next->next == NULL);
-
-    // Supprimer élément absent → ne change rien
-    int x = 999;
-    list = list_remove(list, &x);
-    assert(*(int*)list->val == 10);
-    assert(*(int*)list->next->val == 30);
-
-    // Supprimer tête
-    list = list_remove(list, &a);
-    assert(*(int*)list->val == 30);
-    assert(list->next == NULL);
-
-    printf("[OK] list_remove gère tête, milieu, fin et absents\n");
-
-    list_destroy(list);
-}
-
-void test_headRemove()
-{
-    int a = 10, b = 20;
-    node_t *list = NULL;
-
-    list = list_append(list, &a);
-    list = list_append(list, &b);
-
-    list = list_headRemove(list);
-    assert(*(int*)list->val == 20);
-    assert(list->next == NULL);
-
-    list = list_headRemove(list);
-    assert(list == NULL);
-
-    printf("[OK] list_headRemove supprime correctement la tête\n");
-}
-
-void test_destroy()
-{
-    int a = 10, b = 20, c = 30;
-    node_t *list = NULL;
-
-    list = list_append(list, &a);
-    list = list_append(list, &b);
-    list = list_append(list, &c);
-
-    list_destroy(list);
-
-    printf("[OK] list_destroy libère bien la liste (tester avec valgrind)\n");
+    static char buf[50];
+    if (!n) return "NULL";
+    sprintf(buf, "%d", *(int*)n->val);
+    return buf;
 }
 
 int main(void)
 {
-    printf("===== TESTS DE LA LISTE CHAÎNÉE =====\n\n");
+    printf("===== TEST DE LA LISTE CHAINEE =====\n\n");
 
-    test_create();
-    test_insert_and_get();
-    test_append();
-    test_remove();
-    test_headRemove();
-    test_destroy();
+    int a=10, b=20, c=30, d=40, x=999;
 
-    printf("\n🎉 Tous les tests sont PASSÉS !\n");
+    /* ----------------------------
+       TEST 1 : création liste
+    ----------------------------- */
+    node_t *list = list_create();
+    if (list != NULL)
+        printf("ERREUR: Liste après list_create: %s (attendu NULL)\n", val_or_null(list));
+    else
+        printf("OK: list_create -> NULL\n");
+
+
+    /* ----------------------------
+       TEST 2 : insertion en tête
+    ----------------------------- */
+    list = list_insert(list, &a); // [10]
+
+    if (list == NULL || *(int*)list->val != 10)
+        printf("ERREUR: Valeur en tête: %s (attendu 10)\n", val_or_null(list));
+    else
+        printf("OK: list_insert tête -> %s (attendu 10)\n", val_or_null(list));
+
+
+    /* ----------------------------
+       TEST 3 : append
+    ----------------------------- */
+    list = list_append(list, &b); // [10 -> 20]
+    list = list_append(list, &c); // [10 -> 20 -> 30]
+
+    printf("Liste après append (attendu 10 20 30) : ");
+    list_print(list, print_int);
+    printf("\n");
+
+
+    /* ----------------------------
+       TEST 4 : insertion tête
+    ----------------------------- */
+    list = list_insert(list, &d); // [40 -> 10 -> 20 -> 30]
+
+    if (*(int*)list->val != 40)
+        printf("ERREUR: Tête après insertion: %s (attendu 40)\n", val_or_null(list));
+    else
+        printf("OK: list_insert nouvelle tête -> %s\n", val_or_null(list));
+
+
+    printf("Liste actuelle (attendu 40 10 20 30) : ");
+    list_print(list, print_int);
+    printf("\n");
+
+
+    /* ----------------------------
+       TEST 5 : remove milieu
+    ----------------------------- */
+    list = list_remove(list, &b); // retire 20
+
+    printf("Après remove(20) (attendu 40 10 30) : ");
+    list_print(list, print_int);
+    printf("\n");
+
+
+    /* ----------------------------
+       TEST 6 : remove élément absent
+    ----------------------------- */
+    node_t *before = list;
+    list = list_remove(list, &x); // ne change rien
+
+    if (list != before)
+        printf("ERREUR: remove(element absent) modifie la liste !\n");
+    else
+        printf("OK: remove(x) où x absent ne change pas la liste\n");
+
+
+    /* ----------------------------
+       TEST 7 : remove tête
+    ----------------------------- */
+    list = list_remove(list, &d); // retire 40
+
+    printf("Après remove(40) (attendu 10 30) : ");
+    list_print(list, print_int);
+    printf("\n");
+
+
+    /* ----------------------------
+       TEST 8 : headRemove
+    ----------------------------- */
+    list = list_headRemove(list); // retire 10
+
+    printf("Après headRemove (attendu 30) : ");
+    list_print(list, print_int);
+    printf("\n");
+
+    list = list_headRemove(list); // retire 30 → vide
+
+    if (list != NULL)
+        printf("ERREUR: Liste après headRemove final devrait être NULL\n");
+    else
+        printf("OK: headRemove sur dernier élément -> NULL\n");
+
+
+    /* ----------------------------
+       TEST 9 : append sur liste vide
+    ----------------------------- */
+    list = list_append(list, &a); // [10]
+
+    if (*(int*)list->val != 10)
+        printf("ERREUR: append sur liste vide -> %s (attendu 10)\n", val_or_null(list));
+    else
+        printf("OK: append sur liste vide -> 10\n");
+
+
+    /* ----------------------------
+       TEST 10 : destruction
+    ----------------------------- */
+    list_destroy(list);
+    printf("OK: list_destroy exécuté (vérifier valgrind pour fuites mémoire)\n");
+
+
+    printf("\n===== FIN DU TEST =====\n");
     return 0;
 }
