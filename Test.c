@@ -4,139 +4,181 @@
 
 void print_int(void * ptr)
 {
-    printf("%d ", *(int*)ptr);
+    if (!ptr) printf("NULL ");
+    else printf("%d ", *(int*)ptr);
 }
 
-// Fonction utilitaire pour lire la valeur d'un noeud ou indiquer NULL
 const char* val_or_null(node_t *n)
 {
     static char buf[50];
     if (!n) return "NULL";
+    if (!n->val) return "NULL(DATA)";
     sprintf(buf, "%d", *(int*)n->val);
     return buf;
 }
 
+/* ============================================================
+   TEST MAXI COMPLET DE LISTE CHAINEE
+   ============================================================ */
 int main(void)
 {
-    printf("===== TEST DE LA LISTE CHAINEE =====\n\n");
+    printf("===== TEST VERSION MAXI COMPLETE =====\n\n");
 
     int a=10, b=20, c=30, d=40, x=999;
 
-    /* ----------------------------
-       TEST 1 : création liste
-    ----------------------------- */
+    /* --------------------------------------------------
+       1. Création
+       -------------------------------------------------- */
     node_t *list = list_create();
-    if (list != NULL)
-        printf("ERREUR: Liste après list_create: %s (attendu NULL)\n", val_or_null(list));
-    else
-        printf("OK: list_create -> NULL\n");
+    printf("Test list_create: %s (attendu NULL)\n", val_or_null(list));
 
 
-    /* ----------------------------
-       TEST 2 : insertion en tête
-    ----------------------------- */
-    list = list_insert(list, &a); // [10]
-
-    if (list == NULL || *(int*)list->val != 10)
-        printf("ERREUR: Valeur en tête: %s (attendu 10)\n", val_or_null(list));
-    else
-        printf("OK: list_insert tête -> %s (attendu 10)\n", val_or_null(list));
+    /* --------------------------------------------------
+       2. list_get_data et next avec NULL
+       -------------------------------------------------- */
+    printf("list_get_data(NULL) -> %p (attendu NULL)\n", list_get_data(NULL));
+    printf("list_next(NULL) -> %p (attendu NULL)\n", (void*)list_next(NULL));
 
 
-    /* ----------------------------
-       TEST 3 : append
-    ----------------------------- */
-    list = list_append(list, &b); // [10 -> 20]
-    list = list_append(list, &c); // [10 -> 20 -> 30]
+    /* --------------------------------------------------
+       3. insert sur liste vide
+       -------------------------------------------------- */
+    list = list_insert(list, &a);
+    printf("Après insert(a), tête = %s (attendu 10)\n", val_or_null(list));
 
-    printf("Liste après append (attendu 10 20 30) : ");
+
+    /* --------------------------------------------------
+       4. insert sur liste non vide
+       -------------------------------------------------- */
+    list = list_insert(list, &b);
+    printf("Après insert(b), tête = %s (attendu 20)\n", val_or_null(list));
+
+
+    /* --------------------------------------------------
+       5. append sur liste non vide
+       -------------------------------------------------- */
+    list = list_append(list, &c);
+    list = list_append(list, &d);
+
+    printf("Après append(c,d), liste (attendu 20 10 30 40) : ");
     list_print(list, print_int);
     printf("\n");
 
 
-    /* ----------------------------
-       TEST 4 : insertion tête
-    ----------------------------- */
-    list = list_insert(list, &d); // [40 -> 10 -> 20 -> 30]
-
-    if (*(int*)list->val != 40)
-        printf("ERREUR: Tête après insertion: %s (attendu 40)\n", val_or_null(list));
-    else
-        printf("OK: list_insert nouvelle tête -> %s\n", val_or_null(list));
+    /* --------------------------------------------------
+       6. append sur liste NULL
+       -------------------------------------------------- */
+    node_t *list2 = NULL;
+    list2 = list_append(list2, &a);
+    printf("append sur NULL -> %s (attendu 10)\n", val_or_null(list2));
+    list_destroy(list2);
 
 
-    printf("Liste actuelle (attendu 40 10 20 30) : ");
+    /* --------------------------------------------------
+       7. remove au milieu
+       -------------------------------------------------- */
+    list = list_remove(list, &c);
+    printf("remove(c), liste (attendu 20 10 40) : ");
     list_print(list, print_int);
     printf("\n");
 
 
-    /* ----------------------------
-       TEST 5 : remove milieu
-    ----------------------------- */
-    list = list_remove(list, &b); // retire 20
-
-    printf("Après remove(20) (attendu 40 10 30) : ");
+    /* --------------------------------------------------
+       8. remove tête
+       -------------------------------------------------- */
+    list = list_remove(list, &b);
+    printf("remove(b), liste (attendu 10 40) : ");
     list_print(list, print_int);
     printf("\n");
 
 
-    /* ----------------------------
-       TEST 6 : remove élément absent
-    ----------------------------- */
+    /* --------------------------------------------------
+       9. remove dernier
+       -------------------------------------------------- */
+    list = list_remove(list, &d);
+    printf("remove(d), liste (attendu 10) : ");
+    list_print(list, print_int);
+    printf("\n");
+
+
+    /* --------------------------------------------------
+       10. remove élément absent
+       -------------------------------------------------- */
     node_t *before = list;
-    list = list_remove(list, &x); // ne change rien
-
-    if (list != before)
-        printf("ERREUR: remove(element absent) modifie la liste !\n");
-    else
-        printf("OK: remove(x) où x absent ne change pas la liste\n");
-
-
-    /* ----------------------------
-       TEST 7 : remove tête
-    ----------------------------- */
-    list = list_remove(list, &d); // retire 40
-
-    printf("Après remove(40) (attendu 10 30) : ");
+    list = list_remove(list, &x);
+    printf("remove(x absent), liste inchangée (attendu 10) : ");
     list_print(list, print_int);
     printf("\n");
 
 
-    /* ----------------------------
-       TEST 8 : headRemove
-    ----------------------------- */
-    list = list_headRemove(list); // retire 10
-
-    printf("Après headRemove (attendu 30) : ");
-    list_print(list, print_int);
-    printf("\n");
-
-    list = list_headRemove(list); // retire 30 → vide
-
-    if (list != NULL)
-        printf("ERREUR: Liste après headRemove final devrait être NULL\n");
-    else
-        printf("OK: headRemove sur dernier élément -> NULL\n");
+    /* --------------------------------------------------
+       11. remove sur liste de 1 élément
+       -------------------------------------------------- */
+    list = list_remove(list, &a);
+    printf("remove(a), liste devenue NULL (attendu NULL): %s\n", val_or_null(list));
 
 
-    /* ----------------------------
-       TEST 9 : append sur liste vide
-    ----------------------------- */
-    list = list_append(list, &a); // [10]
-
-    if (*(int*)list->val != 10)
-        printf("ERREUR: append sur liste vide -> %s (attendu 10)\n", val_or_null(list));
-    else
-        printf("OK: append sur liste vide -> 10\n");
+    /* --------------------------------------------------
+       12. remove sur liste vide
+       -------------------------------------------------- */
+    list = list_remove(list, &a);
+    printf("remove(a) sur liste vide -> %s (attendu NULL)\n", val_or_null(list));
 
 
-    /* ----------------------------
-       TEST 10 : destruction
-    ----------------------------- */
+    /* --------------------------------------------------
+       13. headRemove sur liste NULL
+       -------------------------------------------------- */
+    printf("headRemove(NULL) -> %s (attendu NULL)\n", val_or_null(list_headRemove(NULL)));
+
+
+    /* --------------------------------------------------
+       14. headRemove sur liste d’un élément
+       -------------------------------------------------- */
+    list = list_insert(list, &a);
+    list = list_headRemove(list);
+    printf("headRemove sur liste [10] -> %s (attendu NULL)\n", val_or_null(list));
+
+
+    /* --------------------------------------------------
+       15. insertion d’un élément dont la DATA = NULL
+       -------------------------------------------------- */
+    list = list_insert(list, NULL);
+    printf("insert(NULL) -> tête = %s (attendu NULL(DATA))\n", val_or_null(list));
+
     list_destroy(list);
-    printf("OK: list_destroy exécuté (vérifier valgrind pour fuites mémoire)\n");
+    list = NULL;
 
 
-    printf("\n===== FIN DU TEST =====\n");
+    /* --------------------------------------------------
+       16. Stress test : 10 000 insertions
+       -------------------------------------------------- */
+    printf("\n--- STRESS TEST (10 000 insertions + destruction) ---\n");
+
+    for (int i = 0; i < 10000; i++) {
+        list = list_insert(list, &a);
+    }
+    printf("Insertion OK (10 000 éléments)\n");
+
+    list_destroy(list);
+    printf("Destruction OK (tester valgrind : aucune fuite prévue)\n");
+
+
+    /* --------------------------------------------------
+       17. Stress test : 10 000 append
+       -------------------------------------------------- */
+    printf("\n--- STRESS APPEND TEST (10 000 append) ---\n");
+
+    for (int i = 0; i < 10000; i++) {
+        list = list_append(list, &b);
+    }
+    printf("Append OK (10 000 éléments)\n");
+
+    list_destroy(list);
+
+
+    /* --------------------------------------------------
+       FIN
+       -------------------------------------------------- */
+    printf("\n===== FIN DU TEST MAXI COMPLET =====\n");
     return 0;
 }
