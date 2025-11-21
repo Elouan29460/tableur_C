@@ -72,7 +72,6 @@ void op_add(my_stack_t *eval);
 void op_sub(my_stack_t *eval);
 void op_mul(my_stack_t *eval);
 void op_div(my_stack_t *eval);
-void op_mod(my_stack_t *eval);
 
 // Utilitaires
 s_cell *get_cell_by_reference(const char *ref, s_sheet *sheet);
