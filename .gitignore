@@ -1,0 +1,31 @@
+# Fichiers objets
+*.o
+
+# Fichiers exécutables
+testStack
+testCellule
+testListe
+testListe2
+Test
+
+# Fichiers de sauvegarde et temporaires
+*~
+*.swp
+*.swo
+.*.swp
+.*.swo
+
+# Fichiers de debug
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Core dumps
+core
+core.*
+
+# Dossiers de build
+build/
+bin/
+obj/
