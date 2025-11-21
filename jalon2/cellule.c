@@ -5,11 +5,15 @@
 #include <math.h>
 #include "cellule.h"
 
-// Variable globale pour la feuille de calcul
+// La sainte feuille de calcul
 s_sheet *sheet = NULL;
 
-// ===== Opérateurs arithmétiques =====
 
+
+
+/**
+ * Les opérateurs
+ */
 void op_add(my_stack_t *eval) {
     double b = STACK_POP(eval, double);
     double a = STACK_POP(eval, double);
@@ -60,11 +64,13 @@ s_operation operations[] = {
     {"*", op_mul},
     {"/", op_div},
     {"%", op_mod},
-    {"cos", op_cos}
+    {"cos", op_cos},
+    {NULL, NULL}
 };
-int nb_operations = 6;
 
-// ===== Création et destruction =====
+/**
+ * Création et suppression des cellules et des tkens
+ */
 
 s_cell *cell_create(void) {
     s_cell *cell = (s_cell *)malloc(sizeof(s_cell));
@@ -80,23 +86,19 @@ s_cell *cell_create(void) {
 
 void cell_destroy(s_cell *cell) {
     if (cell == NULL) return;
-    
     if (cell->chaine != NULL) {
         free(cell->chaine);
     }
     
-    // Libérer la liste des tokens
     node_t *current = cell->tokens;
     while (current != NULL) {
         s_token *token = (s_token *)list_get_data(current);
         token_destroy(token);
         current = list_next(current);
     }
+
     list_destroy(cell->tokens);
-    
-    // La liste des dépendances contient juste des pointeurs, pas besoin de libérer les cellules
     list_destroy(cell->dependencies);
-    
     free(cell);
 }
 
@@ -115,7 +117,9 @@ void token_destroy(s_token *token) {
     }
 }
 
-// ===== Fonctions utilitaires =====
+/**
+ * Fonctions utilitaires
+ */
 
 int is_number(const char *str) {
     if (str == NULL || *str == '\0') return 0;
@@ -145,12 +149,13 @@ int is_number(const char *str) {
 
 int is_operator(const char *str) {
     if (str == NULL) return 0;
+    int i = 0;
     
-    // Vérifier si c'est un opérateur dans le tableau des opérations
-    for (int i = 0; i < nb_operations; i++) {
+    while (operations[i].function != NULL && operations[i].name != NULL) {
         if (strcmp(str, operations[i].name) == 0) {
             return 1;
         }
+        i++;
     }
     return 0;
 }
@@ -180,27 +185,40 @@ int is_cell_reference(const char *str) {
 s_cell *get_cell_by_reference(const char *ref, s_sheet *sheet) {
     if (sheet == NULL || ref == NULL) return NULL;
     
-    // TODO: Implémenter la recherche réelle dans la feuille
-    // Pour l'instant, retourne NULL (sera implémenté plus tard)
+    //A finir :'(
     return NULL;
 }
 
-// ===== Analyse de formule =====
+/**
+ * Analyse d'une chaine de caractères contenue dans une cellule
+ * Modifie directement la liste de tokens de la cellule
+ */
 
-node_t *parse_formula(const char *formula, s_sheet *sheet) {
-    if (formula == NULL || *formula == '\0') {
-        return NULL;
+void analyse_chaine_cellule(s_cell *cellule, s_sheet *sheet) {
+    if (cellule == NULL || cellule->chaine == NULL) {
+        return;
     }
     
-    node_t *token_list = list_create();
+    //On dégage l'ancienne liste de token si il en a une
+    if (cellule->tokens != NULL) {
+        node_t *current = cellule->tokens;
+        while (current != NULL) {
+            s_token *token = (s_token *)list_get_data(current);
+            token_destroy(token);
+            current = list_next(current);
+        }
+        list_destroy(cellule->tokens);
+    }
     
-    // Faire une copie de la formule car strtok modifie la chaîne
-    char *formula_copy = strdup(formula);
+    cellule->tokens = list_create();
+    
+    //Faire une copie de la chaîne car strtok la modifie
+    char *formula_copy = strdup(cellule->chaine);
     if (formula_copy == NULL) {
-        return token_list;
+        return;
     }
     
-    // Utiliser strtok pour séparer par espaces, tabulations, etc.
+    //On utilise strtok pour séparer notre chaine de caarctère en plusieurs éléments pas un séparateur
     char *token_str = strtok(formula_copy, " \t\n\r");
     
     while (token_str != NULL) {
@@ -210,25 +228,27 @@ node_t *parse_formula(const char *formula, s_sheet *sheet) {
             // C'est un nombre
             token = token_create(VALUE);
             token->value.cst = atof(token_str);
-            token_list = list_append(token_list, token);
+            cellule->tokens = list_append(cellule->tokens, token);
             
         } else if (is_cell_reference(token_str)) {
             // C'est une référence de cellule
             token = token_create(REF);
             token->value.ref = get_cell_by_reference(token_str, sheet);
-            token_list = list_append(token_list, token);
+            cellule->tokens = list_append(cellule->tokens, token);
             
         } else if (is_operator(token_str)) {
             // C'est un opérateur
             token = token_create(OPERATOR);
             // Trouver l'opérateur correspondant
-            for (int j = 0; j < nb_operations; j++) {
+            int j = 0;
+            while (operations[j].function != NULL && operations[j].name != NULL) {
                 if (strcmp(token_str, operations[j].name) == 0) {
                     token->value.operator = operations[j].function;
                     break;
                 }
+                j++;
             }
-            token_list = list_append(token_list, token);
+            cellule->tokens = list_append(cellule->tokens, token);
         }
         
         // Passer au token suivant
@@ -237,11 +257,11 @@ node_t *parse_formula(const char *formula, s_sheet *sheet) {
     
     // Libérer la copie de la formule
     free(formula_copy);
-    
-    return token_list;
 }
 
-// ===== Évaluation =====
+/**
+ * Fonction d'évaluation
+ */
 
 double evaluate_cell(s_cell *cell) {
     if (cell == NULL || cell->tokens == NULL) {

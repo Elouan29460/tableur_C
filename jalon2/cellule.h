@@ -51,7 +51,6 @@ extern s_sheet *sheet;
 
 // Tableau des opérations disponibles
 extern s_operation operations[];
-extern int nb_operations;
 
 // ===== Déclarations des fonctions =====
 
@@ -65,7 +64,7 @@ void token_destroy(s_token *token);
 
 
 // Analyse de formule
-node_t *parse_formula(const char *formula, s_sheet *sheet);
+void analyse_chaine_cellule(s_cell *cellule, s_sheet *sheet);
 // Évaluation
 double evaluate_cell(s_cell *cell);
 
