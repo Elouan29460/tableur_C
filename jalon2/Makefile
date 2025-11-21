@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -g
-LDFLAGS =
+LDFLAGS = -lm
 
 # Répertoires
 JALON1_DIR = ../jalon1
@@ -19,14 +19,14 @@ all: $(TEST_STACK) $(TEST_CELLULE)
 
 # Compilation du test de pile
 $(TEST_STACK): testStack.o stack.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 testStack.o: testStack.c stack.h
 	$(CC) $(CFLAGS) -c testStack.c
 
 # Compilation du test de cellule
 $(TEST_CELLULE): testCellule.o cellule.o stack.o liste.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 testCellule.o: testCellule.c cellule.h stack.h $(JALON1_DIR)/liste.h
 	$(CC) $(CFLAGS) -c testCellule.c

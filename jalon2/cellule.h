@@ -6,17 +6,17 @@
 
 // Structure de base pour une cellule
 typedef struct s_cell {
-    char *chaine;              // Chaîne saisie par l'utilisateur
-    double value;               // Valeur numérique calculée (0.0 si non calculable)
-    node_t *tokens;            // Liste des jetons (token)
-    node_t *dependencies;      // Liste des cellules qui dépendent de cette cellule
+    char *chaine;
+    double value;
+    node_t *tokens;
+    node_t *dependencies;
 } s_cell;
 
 // Types de jetons
 typedef enum {
-    VALUE,      // Constante numérique
-    REF,        // Référence vers une autre cellule
-    OPERATOR    // Opérateur
+    VALUE,
+    REF,
+    OPERATOR
 } token_type;
 
 // Structure pour un jeton
@@ -61,17 +61,23 @@ void cell_destroy(s_cell *cell);
 s_token *token_create(token_type type);
 void token_destroy(s_token *token);
 
+
+
+
 // Analyse de formule
 node_t *parse_formula(const char *formula, s_sheet *sheet);
-
 // Évaluation
 double evaluate_cell(s_cell *cell);
+
+
 
 // Opérateurs de base
 void op_add(my_stack_t *eval);
 void op_sub(my_stack_t *eval);
 void op_mul(my_stack_t *eval);
 void op_div(my_stack_t *eval);
+void op_mod(my_stack_t *eval);
+void op_cos(my_stack_t *eval);
 
 // Utilitaires
 s_cell *get_cell_by_reference(const char *ref, s_sheet *sheet);
