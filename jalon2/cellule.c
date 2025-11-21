@@ -124,27 +124,8 @@ void token_destroy(s_token *token) {
 int is_number(const char *str) {
     if (str == NULL || *str == '\0') return 0;
     
-    int has_digit = 0;
-    int has_dot = 0;
-    
-    // Gérer le signe
-    if (*str == '-' || *str == '+') {
-        str++;
-    }
-    
-    while (*str != '\0') {
-        if (isdigit(*str)) {
-            has_digit = 1;
-        } else if (*str == '.') {
-            if (has_dot) return 0; // Deux points décimaux
-            has_dot = 1;
-        } else {
-            return 0;
-        }
-        str++;
-    }
-    
-    return has_digit;
+    double votreReel;
+    return sscanf(str,"%lf",&votreReel);
 }
 
 int is_operator(const char *str) {
