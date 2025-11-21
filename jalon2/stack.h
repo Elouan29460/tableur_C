@@ -79,7 +79,7 @@ typedef struct  {
  * stack 	: pile (my_stack_t *)
  * type		: type de l'element a depiler
  * ---------------------------------------------------
- * retourne la valeur depilée ou 0 en absence de valeur
+ * retourne la valeur depilï¿½e ou 0 en absence de valeur
  * Il faut que la valeur 0 puisse etre convertie
  * dans le type choisi pour les elements 
  * ----------------------------------------------------
@@ -127,7 +127,7 @@ typedef struct  {
  * var		: elemnt courrant
  * type		: type des elements 
  * ---------------------------------------------------
- * retourne une valeur enregistrée dans la pile dans var, 
+ * retourne une valeur enregistrï¿½e dans la pile dans var, 
  *	et 0 en fin de parcours 1 sinon 
  * si la pile est vide, la valeur de var n'est pas changee
  * ----------------------------------------------------
@@ -142,7 +142,7 @@ typedef struct  {
  * empile une valeur 
  * ---------------------------------------------------
  * stack 	: pile (my_stack_t *)
- * valeur	: valeur à mettre dans la pile
+ * valeur	: valeur ï¿½ mettre dans la pile
  * type		: type de l'element 
  * ---------------------------------------------------
  * retourne 0 si la pile est pleine, 1 sinon 
