@@ -52,7 +52,7 @@ void test_parse_numbers() {
         printf("Formule: \"%s\"\n", formulas[i]);
         s_cell *temp = cell_create();
         temp->chaine = strdup(formulas[i]);
-        analyse_chaine_cellule(temp, NULL);
+        analyse_chaine_cellule(temp);
         print_token_list(temp->tokens);
         cell_destroy(temp);
     }
@@ -73,7 +73,7 @@ void test_parse_operators() {
         printf("Formule: \"%s\"\n", formulas[i]);
         s_cell *temp = cell_create();
         temp->chaine = strdup(formulas[i]);
-        analyse_chaine_cellule(temp, NULL);
+        analyse_chaine_cellule(temp);
         print_token_list(temp->tokens);
         cell_destroy(temp);
     }
@@ -93,7 +93,7 @@ void test_parse_complex() {
         printf("Formule: \"%s\"\n", formulas[i]);
         s_cell *temp = cell_create();
         temp->chaine = strdup(formulas[i]);
-        analyse_chaine_cellule(temp, NULL);
+        analyse_chaine_cellule(temp);
         print_token_list(temp->tokens);
         cell_destroy(temp);
     }
@@ -106,7 +106,7 @@ void test_evaluate_simple() {
     // Test: 5 3 + (doit donner 8)
     s_cell *cell1 = cell_create();
     cell1->chaine = strdup("5 3 +");
-    analyse_chaine_cellule(cell1, NULL);
+    analyse_chaine_cellule(cell1);
     double result1 = evaluate_cell(cell1);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 8.00)\n", cell1->chaine, result1);
     cell_destroy(cell1);
@@ -114,7 +114,7 @@ void test_evaluate_simple() {
     // Test: 10 2 - (doit donner 8)
     s_cell *cell2 = cell_create();
     cell2->chaine = strdup("10 2 -");
-    analyse_chaine_cellule(cell2, NULL);
+    analyse_chaine_cellule(cell2);
     double result2 = evaluate_cell(cell2);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 8.00)\n", cell2->chaine, result2);
     cell_destroy(cell2);
@@ -122,7 +122,7 @@ void test_evaluate_simple() {
     // Test: 4 5 * (doit donner 20)
     s_cell *cell3 = cell_create();
     cell3->chaine = strdup("4 5 *");
-    analyse_chaine_cellule(cell3, NULL);
+    analyse_chaine_cellule(cell3);
     double result3 = evaluate_cell(cell3);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 20.00)\n", cell3->chaine, result3);
     cell_destroy(cell3);
@@ -130,7 +130,7 @@ void test_evaluate_simple() {
     // Test: 20 4 / (doit donner 5)
     s_cell *cell4 = cell_create();
     cell4->chaine = strdup("20 4 /");
-    analyse_chaine_cellule(cell4, NULL);
+    analyse_chaine_cellule(cell4);
     double result4 = evaluate_cell(cell4);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 5.00)\n", cell4->chaine, result4);
     cell_destroy(cell4);
@@ -143,7 +143,7 @@ void test_evaluate_complex() {
     // Test: 5 3 + 2 * (doit donner 16: (5+3)*2)
     s_cell *cell1 = cell_create();
     cell1->chaine = strdup("5 3 + 2 *");
-    analyse_chaine_cellule(cell1, NULL);
+    analyse_chaine_cellule(cell1);
     double result1 = evaluate_cell(cell1);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 16.00)\n", cell1->chaine, result1);
     cell_destroy(cell1);
@@ -151,7 +151,7 @@ void test_evaluate_complex() {
     // Test: 10 2 / 3 - (doit donner 2: 10/2-3 = 5-3)
     s_cell *cell2 = cell_create();
     cell2->chaine = strdup("10 2 / 3 -");
-    analyse_chaine_cellule(cell2, NULL);
+    analyse_chaine_cellule(cell2);
     double result2 = evaluate_cell(cell2);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 2.00)\n", cell2->chaine, result2);
     cell_destroy(cell2);
@@ -159,7 +159,7 @@ void test_evaluate_complex() {
     // Test: 1.5 2.5 + 3 * (doit donner 12: (1.5+2.5)*3 = 4*3)
     s_cell *cell3 = cell_create();
     cell3->chaine = strdup("1.5 2.5 + 3 *");
-    analyse_chaine_cellule(cell3, NULL);
+    analyse_chaine_cellule(cell3);
     double result3 = evaluate_cell(cell3);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 12.00)\n", cell3->chaine, result3);
     cell_destroy(cell3);
@@ -197,13 +197,13 @@ void test_cell_references() {
     // Créer deux cellules
     s_cell *cellA1 = cell_create();
     cellA1->chaine = strdup("10");
-    analyse_chaine_cellule(cellA1, NULL);
+    analyse_chaine_cellule(cellA1);
     cellA1->value = evaluate_cell(cellA1);
     printf("Cellule A1: \"%s\" = %.2f\n", cellA1->chaine, cellA1->value);
     
     s_cell *cellB1 = cell_create();
     cellB1->chaine = strdup("5");
-    analyse_chaine_cellule(cellB1, NULL);
+    analyse_chaine_cellule(cellB1);
     cellB1->value = evaluate_cell(cellB1);
     printf("Cellule B1: \"%s\" = %.2f\n", cellB1->chaine, cellB1->value);
     
@@ -212,7 +212,7 @@ void test_cell_references() {
     // Ce test sera complété quand la gestion de la feuille sera implémentée
     s_cell *cellC1 = cell_create();
     cellC1->chaine = strdup("A1 B1 +");
-    analyse_chaine_cellule(cellC1, NULL);
+    analyse_chaine_cellule(cellC1);
     
     // Manuellement injecter les références pour le test
     node_t *current = cellC1->tokens;

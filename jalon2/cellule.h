@@ -64,7 +64,7 @@ void token_destroy(s_token *token);
 
 
 // Analyse de formule
-void analyse_chaine_cellule(s_cell *cellule, s_sheet *sheet);
+void analyse_chaine_cellule(s_cell *cellule);
 // Évaluation
 double evaluate_cell(s_cell *cell);
 
@@ -79,7 +79,7 @@ void op_mod(my_stack_t *eval);
 void op_cos(my_stack_t *eval);
 
 // Utilitaires
-s_cell *get_cell_by_reference(const char *ref, s_sheet *sheet);
+s_cell *get_cell_by_reference(const char *ref);
 int is_operator(const char *str);
 int is_number(const char *str);
 int is_cell_reference(const char *str);

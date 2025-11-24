@@ -125,7 +125,8 @@ int is_number(const char *str) {
     if (str == NULL || *str == '\0') return 0;
     
     double votreReel;
-    return sscanf(str,"%lf",&votreReel);
+    // sscanf retourne le nombre d'éléments lus (1 si c'est un nombre, 0 sinon)
+    return sscanf(str, "%lf", &votreReel) == 1;
 }
 
 int is_operator(const char *str) {
@@ -163,7 +164,7 @@ int is_cell_reference(const char *str) {
     return str[i] == '\0';
 }
 
-s_cell *get_cell_by_reference(const char *ref, s_sheet *sheet) {
+s_cell *get_cell_by_reference(const char *ref) {
     if (sheet == NULL || ref == NULL) return NULL;
     
     //A finir :'(
@@ -175,7 +176,7 @@ s_cell *get_cell_by_reference(const char *ref, s_sheet *sheet) {
  * Modifie directement la liste de tokens de la cellule
  */
 
-void analyse_chaine_cellule(s_cell *cellule, s_sheet *sheet) {
+void analyse_chaine_cellule(s_cell *cellule) {
     if (cellule == NULL || cellule->chaine == NULL) {
         return;
     }
@@ -208,13 +209,13 @@ void analyse_chaine_cellule(s_cell *cellule, s_sheet *sheet) {
         if (is_number(token_str)) {
             // C'est un nombre
             token = token_create(VALUE);
-            token->value.cst = atof(token_str);
+            sscanf(token_str, "%lf", &token->value.cst); // Conversion en double
             cellule->tokens = list_append(cellule->tokens, token);
             
         } else if (is_cell_reference(token_str)) {
             // C'est une référence de cellule
             token = token_create(REF);
-            token->value.ref = get_cell_by_reference(token_str, sheet);
+            token->value.ref = get_cell_by_reference(token_str);
             cellule->tokens = list_append(cellule->tokens, token);
             
         } else if (is_operator(token_str)) {
