@@ -23,9 +23,9 @@ typedef enum {
 typedef struct token {
     token_type type;
     union {
-        double cst;                                    // Constante numérique
-        s_cell *ref;                                   // Référence vers une cellule
-        void (*operator)(my_stack_t *eval);           // Pointeur vers fonction opérateur
+        double cst;
+        s_cell *ref;
+        void (*operator)(my_stack_t *eval);
     } value;
 } s_token;
 
@@ -34,16 +34,16 @@ typedef struct token {
 
 // Structure pour définir une opération
 typedef struct {
-    char *name;                                       // Nom de l'opérateur ("+", "-", etc.)
-    void (*function)(my_stack_t *eval);              // Pointeur vers la fonction
+    char *name;
+    void (*function)(my_stack_t *eval);
 } s_operation;
 
 // Structure pour la feuille de calcul
 typedef struct {
-    char *filename;             // Nom du fichier pour l'enregistrement
-    int nb_rows;                // Nombre de lignes
-    int nb_cols;                // Nombre de colonnes
-    node_t *cells;             // Liste des cellules existantes
+    char *filename;
+    int nb_rows;
+    int nb_cols;
+    node_t *cells;
 } s_sheet;
 
 // Variable globale pour la feuille de calcul
@@ -71,12 +71,12 @@ double evaluate_cell(s_cell *cell);
 
 
 // Opérateurs de base
-void op_add(my_stack_t *eval);
-void op_sub(my_stack_t *eval);
-void op_mul(my_stack_t *eval);
-void op_div(my_stack_t *eval);
-void op_mod(my_stack_t *eval);
-void op_cos(my_stack_t *eval);
+void addition(my_stack_t *eval);
+void soustraction(my_stack_t *eval);
+void multiplication(my_stack_t *eval);
+void division(my_stack_t *eval);
+void modulo(my_stack_t *eval);
+void cosinus(my_stack_t *eval);
 
 // Utilitaires
 s_cell *get_cell_by_reference(const char *ref);

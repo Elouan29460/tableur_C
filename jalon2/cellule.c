@@ -14,25 +14,25 @@ s_sheet *sheet = NULL;
 /**
  * Les opérateurs
  */
-void op_add(my_stack_t *eval) {
+void addition(my_stack_t *eval) {
     double b = STACK_POP(eval, double);
     double a = STACK_POP(eval, double);
     STACK_PUSH(eval, a + b, double);
 }
 
-void op_sub(my_stack_t *eval) {
+void soustraction(my_stack_t *eval) {
     double b = STACK_POP(eval, double);
     double a = STACK_POP(eval, double);
     STACK_PUSH(eval, a - b, double);
 }
 
-void op_mul(my_stack_t *eval) {
+void multiplication(my_stack_t *eval) {
     double b = STACK_POP(eval, double);
     double a = STACK_POP(eval, double);
     STACK_PUSH(eval, a * b, double);
 }
 
-void op_div(my_stack_t *eval) {
+void division(my_stack_t *eval) {
     double b = STACK_POP(eval, double);
     double a = STACK_POP(eval, double);
     if (b != 0.0) {
@@ -42,29 +42,29 @@ void op_div(my_stack_t *eval) {
     }
 }
 
-void op_mod(my_stack_t *eval) {
+void modulo(my_stack_t *eval) {
     double b = STACK_POP(eval, double);
     double a = STACK_POP(eval, double);
     if (b != 0.0) {
         STACK_PUSH(eval, fmod(a, b), double);
     } else {
-        STACK_PUSH(eval, 0.0, double);
+        STACK_PUSH(eval, 0.0, double); // Modulo par zéro -> 0.0
     }
 }
 
-void op_cos(my_stack_t *eval) {
+void cosinus(my_stack_t *eval) {
     double a = STACK_POP(eval, double);
     STACK_PUSH(eval, cos(a), double);
 }
 
 // Tableau des opérations disponibles
 s_operation operations[] = {
-    {"+", op_add},
-    {"-", op_sub},
-    {"*", op_mul},
-    {"/", op_div},
-    {"%", op_mod},
-    {"cos", op_cos},
+    {"+", addition},
+    {"-", soustraction},
+    {"*", multiplication},
+    {"/", division},
+    {"%", modulo},
+    {"cos", cosinus},
     {NULL, NULL}
 };
 
@@ -125,7 +125,7 @@ int is_number(const char *str) {
     if (str == NULL || *str == '\0') return 0;
     
     double votreReel;
-    // sscanf retourne le nombre d'éléments lus (1 si c'est un nombre, 0 sinon)
+    // sscanf retourne le nombre d'éléments lus
     return sscanf(str, "%lf", &votreReel) == 1;
 }
 
@@ -209,7 +209,7 @@ void analyse_chaine_cellule(s_cell *cellule) {
         if (is_number(token_str)) {
             // C'est un nombre
             token = token_create(VALUE);
-            sscanf(token_str, "%lf", &token->value.cst); // Conversion en double
+            sscanf(token_str, "%lf", &token->value.cst);
             cellule->tokens = list_append(cellule->tokens, token);
             
         } else if (is_cell_reference(token_str)) {
