@@ -195,45 +195,50 @@ void test_utilities() {
 void test_cell_references() {
     printf("\n=== Test 7: Test avec références de cellules ===\n");
     
-    // Créer deux cellules
+    // Créer une feuille de calcul 10x10
+    sheet = sheet_create(10, 10);
+    if (sheet == NULL) {
+        printf("ERREUR: Impossible de créer la feuille\n");
+        return;
+    }
+    
+    // Créer cellule A1 avec valeur 10
     s_cell *cellA1 = cell_create();
     cellA1->chaine = strdup("10");
     analyse_chaine_cellule(cellA1);
     cellA1->value = evaluate_cell(cellA1);
+    sheet->cells_2d[0][0] = cellA1;  // A1 -> [0][0]
     printf("Cellule A1: \"%s\" = %.2f\n", cellA1->chaine, cellA1->value);
     
+    // Créer cellule B1 avec valeur 5
     s_cell *cellB1 = cell_create();
     cellB1->chaine = strdup("5");
     analyse_chaine_cellule(cellB1);
     cellB1->value = evaluate_cell(cellB1);
+    sheet->cells_2d[0][1] = cellB1;  // B1 -> [0][1]
     printf("Cellule B1: \"%s\" = %.2f\n", cellB1->chaine, cellB1->value);
     
-    // Créer une cellule qui référence A1 et B1
-    // Note: Pour l'instant, get_cell_by_reference retourne NULL
-    // Ce test sera complété quand la gestion de la feuille sera implémentée
+    // Créer cellule C1 qui fait =A1 B1 +
     s_cell *cellC1 = cell_create();
     cellC1->chaine = strdup("=A1 B1 +");
     analyse_chaine_cellule(cellC1);
+    sheet->cells_2d[0][2] = cellC1;  // C1 -> [0][2]
     
-    // Manuellement injecter les références pour le test
-    node_t *current = cellC1->tokens;
-    int pos = 0;
-    while (current != NULL) {
-        s_token *token = (s_token *)list_get_data(current);
-        if (token->type == REF) {
-            if (pos == 0) token->value.ref = cellA1;
-            else if (pos == 1) token->value.ref = cellB1;
-            pos++;
-        }
-        current = list_next(current);
-    }
-    
+    // Maintenant les références doivent être résolues automatiquement
     double result = evaluate_cell(cellC1);
     printf("Cellule C1: \"%s\" = %.2f (attendu: 15.00)\n", cellC1->chaine, result);
     
-    cell_destroy(cellA1);
-    cell_destroy(cellB1);
-    cell_destroy(cellC1);
+    // Test avec cellule vide (doit être créée automatiquement avec valeur 0)
+    s_cell *cellD1 = cell_create();
+    cellD1->chaine = strdup("=Z9");  // Z9 n'existe pas, sera créée avec valeur 0
+    analyse_chaine_cellule(cellD1);
+    sheet->cells_2d[0][3] = cellD1;  // D1 -> [0][3]
+    result = evaluate_cell(cellD1);
+    printf("Cellule D1: \"%s\" = %.2f (attendu: 0.00 car Z9 vide)\n", cellD1->chaine, result);
+    
+    // Nettoyer
+    sheet_destroy(sheet);
+    sheet = NULL;
 }
 
 int main(void) {

@@ -44,6 +44,7 @@ typedef struct {
     int nb_rows;
     int nb_cols;
     node_t *cells;
+    s_cell ***cells_2d;
 } s_sheet;
 
 // Variable globale pour la feuille de calcul
@@ -52,13 +53,17 @@ extern s_sheet *sheet;
 // Tableau des opérations disponibles
 extern s_operation operations[];
 
-// ===== Déclarations des fonctions =====
 
 // Création et destruction
 s_cell *cell_create(void);
 void cell_destroy(s_cell *cell);
 s_token *token_create(token_type type);
 void token_destroy(s_token *token);
+
+// Gestion de la feuille
+s_sheet *sheet_create(int nb_rows, int nb_cols);
+void sheet_destroy(s_sheet *sheet);
+void feuille_setCell(s_cell *cell,const char* nom);
 
 
 
