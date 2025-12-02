@@ -3,240 +3,122 @@
 #include <string.h>
 #include "cellule.h"
 
-// Fonction utilitaire pour afficher un token
-void print_token(s_token *token) {
-    if (token == NULL) {
-        printf("NULL");
-        return;
-    }
+// Test 1: Test des fonctions cell_setStr et feuille_setCell
+void test_set_functions() {
+    printf("\n=== Test 1: Fonctions cell_setStr et feuille_setCell ===\n");
     
-    switch (token->type) {
-        case VALUE:
-            printf("VALUE(%.2f)", token->value.cst);
-            break;
-        case REF:
-            printf("REF(%p)", (void*)token->value.ref);
-            break;
-        case OPERATOR:
-            printf("OPERATOR(%p)", (void*)token->value.operator);
-            break;
-    }
-}
-
-// Fonction utilitaire pour afficher une liste de tokens
-void print_token_list(node_t *tokens) {
-    printf("Tokens: [");
-    node_t *current = tokens;
-    int first = 1;
-    while (current != NULL) {
-        if (!first) printf(", ");
-        print_token((s_token *)list_get_data(current));
-        first = 0;
-        current = list_next(current);
-    }
-    printf("]\n");
-}
-
-// Test 1: Parsing de nombres
-void test_parse_numbers() {
-    printf("\n=== Test 1: Parsing de nombres ===\n");
-    
-    const char *formulas[] = {
-        "42",
-        "3.14",
-        "-5.5",
-        "10 20 30"
-    };
-    
-    for (int i = 0; i < 4; i++) {
-        printf("Formule: \"%s\"\n", formulas[i]);
-        s_cell *temp = cell_create();
-        temp->chaine = strdup(formulas[i]);
-        analyse_chaine_cellule(temp);
-        print_token_list(temp->tokens);
-        cell_destroy(temp);
-    }
-}
-
-// Test 2: Parsing d'opérateurs
-void test_parse_operators() {
-    printf("\n=== Test 2: Parsing d'opérateurs ===\n");
-    
-    const char *formulas[] = {
-        "=5 3 +",
-        "=10 2 -",
-        "=4 5 *",
-        "=20 4 /"
-    };
-    
-    for (int i = 0; i < 4; i++) {
-        printf("Formule: \"%s\"\n", formulas[i]);
-        s_cell *temp = cell_create();
-        temp->chaine = strdup(formulas[i]);
-        analyse_chaine_cellule(temp);
-        print_token_list(temp->tokens);
-        cell_destroy(temp);
-    }
-}
-
-// Test 3: Parsing de formules complexes
-void test_parse_complex() {
-    printf("\n=== Test 3: Parsing de formules complexes ===\n");
-    
-    const char *formulas[] = {
-        "=5 3 + 2 *",
-        "=10 2 / 3 -",
-        "=1.5 2.5 + 3 *"
-    };
-    
-    for (int i = 0; i < 3; i++) {
-        printf("Formule: \"%s\"\n", formulas[i]);
-        s_cell *temp = cell_create();
-        temp->chaine = strdup(formulas[i]);
-        analyse_chaine_cellule(temp);
-        print_token_list(temp->tokens);
-        cell_destroy(temp);
-    }
-}
-
-// Test 4: Évaluation de cellules simples
-void test_evaluate_simple() {
-    printf("\n=== Test 4: Évaluation de cellules simples ===\n");
-    
-    // Test: 5 3 + (doit donner 8)
-    s_cell *cell1 = cell_create();
-    cell1->chaine = strdup("=5 3 +");
-    analyse_chaine_cellule(cell1);
-    double result1 = evaluate_cell(cell1);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 8.00)\n", cell1->chaine, result1);
-    cell_destroy(cell1);
-    
-    // Test: 10 2 - (doit donner 8)
-    s_cell *cell2 = cell_create();
-    cell2->chaine = strdup("=10 2 -");
-    analyse_chaine_cellule(cell2);
-    double result2 = evaluate_cell(cell2);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 8.00)\n", cell2->chaine, result2);
-    cell_destroy(cell2);
-    
-    // Test: 4 5 * (doit donner 20)
-    s_cell *cell3 = cell_create();
-    cell3->chaine = strdup("=4 5 *");
-    analyse_chaine_cellule(cell3);
-    double result3 = evaluate_cell(cell3);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 20.00)\n", cell3->chaine, result3);
-    cell_destroy(cell3);
-    
-    // Test: 20 4 / (doit donner 5)
-    s_cell *cell4 = cell_create();
-    cell4->chaine = strdup("=20 4 /");
-    analyse_chaine_cellule(cell4);
-    double result4 = evaluate_cell(cell4);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 5.00)\n", cell4->chaine, result4);
-    cell_destroy(cell4);
-}
-
-// Test 5: Évaluation de formules complexes
-void test_evaluate_complex() {
-    printf("\n=== Test 5: Évaluation de formules complexes ===\n");
-    
-    // Test: 5 3 + 2 * (doit donner 16: (5+3)*2)
-    s_cell *cell1 = cell_create();
-    cell1->chaine = strdup("=5 3 + 2 *");
-    analyse_chaine_cellule(cell1);
-    double result1 = evaluate_cell(cell1);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 16.00)\n", cell1->chaine, result1);
-    cell_destroy(cell1);
-    
-    // Test: 10 2 / 3 - (doit donner 2: 10/2-3 = 5-3)
-    s_cell *cell2 = cell_create();
-    cell2->chaine = strdup("=10 2 / 3 -");
-    analyse_chaine_cellule(cell2);
-    double result2 = evaluate_cell(cell2);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 2.00)\n", cell2->chaine, result2);
-    cell_destroy(cell2);
-    
-    // Test: 1.5 2.5 + 3 * (doit donner 12: (1.5+2.5)*3 = 4*3)
-    s_cell *cell3 = cell_create();
-    cell3->chaine = strdup("=1.5 2.5 + 3 *");
-    analyse_chaine_cellule(cell3);
-    double result3 = evaluate_cell(cell3);
-    printf("Formule: \"%s\" => Résultat: %.2f (attendu: 12.00)\n", cell3->chaine, result3);
-    cell_destroy(cell3);
-}
-
-// Test 6: Tests des fonctions utilitaires
-void test_utilities() {
-    printf("\n=== Test 6: Tests des fonctions utilitaires ===\n");
-    
-    // Test is_number
-    printf("is_number(\"42\"): %d (attendu: 1)\n", is_number("42"));
-    printf("is_number(\"3.14\"): %d (attendu: 1)\n", is_number("3.14"));
-    printf("is_number(\"-5.5\"): %d (attendu: 1)\n", is_number("-5.5"));
-    printf("is_number(\"abc\"): %d (attendu: 0)\n", is_number("abc"));
-    
-    // Test is_operator
-    printf("is_operator(\"+\"): %d (attendu: 1)\n", is_operator("+"));
-    printf("is_operator(\"-\"): %d (attendu: 1)\n", is_operator("-"));
-    printf("is_operator(\"*\"): %d (attendu: 1)\n", is_operator("*"));
-    printf("is_operator(\"/\"): %d (attendu: 1)\n", is_operator("/"));
-    printf("is_operator(\"x\"): %d (attendu: 0)\n", is_operator("x"));
-    
-    // Test is_cell_reference
-    printf("is_cell_reference(\"A1\"): %d (attendu: 1)\n", is_cell_reference("A1"));
-    printf("is_cell_reference(\"B10\"): %d (attendu: 1)\n", is_cell_reference("B10"));
-    printf("is_cell_reference(\"Z99\"): %d (attendu: 1)\n", is_cell_reference("Z99"));
-    printf("is_cell_reference(\"AA23\"): %d (attendu: 0)\n", is_cell_reference("AA23"));
-    printf("is_cell_reference(\"1A\"): %d (attendu: 0)\n", is_cell_reference("1A"));
-    printf("is_cell_reference(\"ABC\"): %d (attendu: 0)\n", is_cell_reference("ABC"));
-}
-
-// Test 7: Test avec références de cellules
-void test_cell_references() {
-    printf("\n=== Test 7: Test avec références de cellules ===\n");
-    
-    // Créer une feuille de calcul 10x10
+    // Créer une feuille 10x10
     sheet = sheet_create(10, 10);
     if (sheet == NULL) {
         printf("ERREUR: Impossible de créer la feuille\n");
         return;
     }
     
-    // Créer cellule A1 avec valeur 10
+    // Test cell_setStr
+    s_cell *cell1 = cell_create();
+    cell_setStr(cell1, "42");
+    printf("Cellule après cell_setStr(\"42\"): chaine=\"%s\"\n", cell1->chaine);
+    
+    // Changer la valeur
+    cell_setStr(cell1, "100");
+    printf("Cellule après cell_setStr(\"100\"): chaine=\"%s\"\n", cell1->chaine);
+    
+    // Test feuille_setCell
+    feuille_setCell(cell1, "A1");
+    printf("Cellule placée en A1\n");
+    
+    s_cell *retrieved = sheet->cells_2d[0][0];
+    if (retrieved == cell1) {
+        printf("✓ Cellule bien récupérée depuis A1: chaine=\"%s\"\n", retrieved->chaine);
+    }
+    
+    sheet_destroy(sheet);
+    sheet = NULL;
+}
+
+// Test 2: Évaluation simple
+void test_evaluation() {
+    printf("\n=== Test 2: Évaluation de formules ===\n");
+    
+    sheet = sheet_create(10, 10);
+    
+    // Créer A1 = 10
     s_cell *cellA1 = cell_create();
-    cellA1->chaine = strdup("10");
+    cell_setStr(cellA1, "10");
     analyse_chaine_cellule(cellA1);
     cellA1->value = evaluate_cell(cellA1);
-    sheet->cells_2d[0][0] = cellA1;  // A1 -> [0][0]
-    printf("Cellule A1: \"%s\" = %.2f\n", cellA1->chaine, cellA1->value);
+    feuille_setCell(cellA1, "A1");
+    printf("A1 = %.2f\n", cellA1->value);
     
-    // Créer cellule B1 avec valeur 5
+    // Créer B1 = 5
     s_cell *cellB1 = cell_create();
-    cellB1->chaine = strdup("5");
+    cell_setStr(cellB1, "5");
     analyse_chaine_cellule(cellB1);
     cellB1->value = evaluate_cell(cellB1);
-    sheet->cells_2d[0][1] = cellB1;  // B1 -> [0][1]
-    printf("Cellule B1: \"%s\" = %.2f\n", cellB1->chaine, cellB1->value);
+    feuille_setCell(cellB1, "B1");
+    printf("B1 = %.2f\n", cellB1->value);
     
-    // Créer cellule C1 qui fait =A1 B1 +
+    // Créer C1 = A1 + B1
     s_cell *cellC1 = cell_create();
-    cellC1->chaine = strdup("=A1 B1 +");
+    cell_setStr(cellC1, "=A1 B1 +");
     analyse_chaine_cellule(cellC1);
-    sheet->cells_2d[0][2] = cellC1;  // C1 -> [0][2]
+    feuille_setCell(cellC1, "C1");
+    cellC1->value = evaluate_cell(cellC1);
+    printf("C1 = A1 + B1 = %.2f (attendu: 15.00)\n", cellC1->value);
     
-    // Maintenant les références doivent être résolues automatiquement
-    double result = evaluate_cell(cellC1);
-    printf("Cellule C1: \"%s\" = %.2f (attendu: 15.00)\n", cellC1->chaine, result);
+    sheet_destroy(sheet);
+    sheet = NULL;
+}
+
+// Test 3: Opérations diverses
+void test_operators() {
+    printf("\n=== Test 3: Test des opérateurs ===\n");
     
-    // Test avec cellule vide (doit être créée automatiquement avec valeur 0)
-    s_cell *cellD1 = cell_create();
-    cellD1->chaine = strdup("=Z9");  // Z9 n'existe pas, sera créée avec valeur 0
-    analyse_chaine_cellule(cellD1);
-    sheet->cells_2d[0][3] = cellD1;  // D1 -> [0][3]
-    result = evaluate_cell(cellD1);
-    printf("Cellule D1: \"%s\" = %.2f (attendu: 0.00 car Z9 vide)\n", cellD1->chaine, result);
+    // Créer une feuille pour les tests avec références
+    sheet = sheet_create(10, 10);
+
+    s_cell *cellB1 = cell_create();
+    cell_setStr(cellB1, "17.88");
+    analyse_chaine_cellule(cellB1);
+    cellB1->value = evaluate_cell(cellB1);
+    feuille_setCell(cellB1, "B1");
+
+    s_cell *cellZ10 = cell_create();
+    cell_setStr(cellZ10, "6.66666");
+    analyse_chaine_cellule(cellZ10);
+    cellZ10->value = evaluate_cell(cellZ10);
+    feuille_setCell(cellZ10, "Z10");
+
+    struct {
+        const char *formula;
+        double expected;
+    } tests[] = {
+        {"=5 3 +", 8.0},
+        {"=10 2 -", 8.0},
+        {"=4 5 *", 20.0},
+        {"=20 4 /", 5.0},
+        {"=10 3 %", 1.0},
+        {"=10 10 + 10 *", 200.0},
+        {"=1 cos", 0.5403},
+        {"=10.5 10.5 * 10.5 * 10.5 * 10.5 *", 127628.15},
+        {"=2 cos 4 cos +", -1.07},
+        {"=B1 B1 +",35.76},
+        {"=Z10 cos", 0.99},
+        {"=D2 10 +", 10.0},
+        {"poulêt roti", 0.0},
+        {"", 0.0}
+    };
     
-    // Nettoyer
+    for (int i = 0; i < 14; i++) {
+        s_cell *cell = cell_create();
+        cell_setStr(cell, tests[i].formula);
+        analyse_chaine_cellule(cell);
+        double result = evaluate_cell(cell);
+        printf("%-15s => %.2f (attendu: %.2f)\n", 
+               tests[i].formula, result, tests[i].expected);
+        cell_destroy(cell);
+    }
+    
     sheet_destroy(sheet);
     sheet = NULL;
 }
@@ -244,13 +126,9 @@ void test_cell_references() {
 int main(void) {
     printf("=== Tests du module cellule ===\n");
     
-    test_utilities();
-    test_parse_numbers();
-    test_parse_operators();
-    test_parse_complex();
-    test_evaluate_simple();
-    test_evaluate_complex();
-    test_cell_references();
+    test_set_functions();
+    test_evaluation();
+    test_operators();
     
     printf("\n=== Fin des tests ===\n");
     return 0;
