@@ -145,23 +145,19 @@ int is_operator(const char *str) {
 int is_cell_reference(const char *str) {
     if (str == NULL || *str == '\0') return 0;
     
-    // Format: Lettre(s) + Nombre(s), ex: A1, B10, AA23
-    int i = 0;
+    // Format: 1 Lettre (A-Z) + Nombre(s), ex: A1, B10, Z99
+    // str[0] doit être une lettre majuscule
+    if (!isupper(str[0])) return 0;
     
-    // Au moins une lettre
-    if (!isalpha(str[i])) return 0;
-    while (isalpha(str[i])) {
-        i++;
+    // str[1] doit être un chiffre
+    if (!isdigit(str[1])) return 0;
+    
+    // Tous les caractères suivants doivent être des chiffres
+    for (int i = 2; str[i] != '\0'; i++) {
+        if (!isdigit(str[i])) return 0;
     }
     
-    // Au moins un chiffre
-    if (!isdigit(str[i])) return 0;
-    while (isdigit(str[i])) {
-        i++;
-    }
-    
-    // Doit être la fin de la chaîne
-    return str[i] == '\0';
+    return 1;
 }
 
 s_cell *get_cell_by_reference(const char *ref) {
@@ -174,6 +170,11 @@ s_cell *get_cell_by_reference(const char *ref) {
 /**
  * Analyse d'une chaine de caractères contenue dans une cellule
  * Modifie directement la liste de tokens de la cellule
+ * 
+ * 3 cas possibles :
+ * 1. Commence par '=' : formule à analyser (ex: "=5 3 +")
+ * 2. Nombre simple : convertir directement (ex: "3.2" -> 3.2)
+ * 3. Autre (texte/vide) : valeur = 0.0 (ex: "" ou "bonjour" -> 0.0)
  */
 
 void analyse_chaine_cellule(s_cell *cellule) {
@@ -194,51 +195,68 @@ void analyse_chaine_cellule(s_cell *cellule) {
     
     cellule->tokens = list_create();
     
-    //Faire une copie de la chaîne car strtok la modifie
-    char *formula_copy = strdup(cellule->chaine);
-    if (formula_copy == NULL) {
-        return;
-    }
-    
-    //On utilise strtok pour séparer notre chaine de caarctère en plusieurs éléments pas un séparateur
-    char *token_str = strtok(formula_copy, " \t\n\r");
-    
-    while (token_str != NULL) {
-        s_token *token = NULL;
+    // Cas 1 : Formule (commence par '=')
+    if (cellule->chaine[0] == '=') {
+        // Analyser la formule (sauter le '=')
+        const char *formula = cellule->chaine + 1;
         
-        if (is_number(token_str)) {
-            // C'est un nombre
-            token = token_create(VALUE);
-            sscanf(token_str, "%lf", &token->value.cst);
-            cellule->tokens = list_append(cellule->tokens, token);
-            
-        } else if (is_cell_reference(token_str)) {
-            // C'est une référence de cellule
-            token = token_create(REF);
-            token->value.ref = get_cell_by_reference(token_str);
-            cellule->tokens = list_append(cellule->tokens, token);
-            
-        } else if (is_operator(token_str)) {
-            // C'est un opérateur
-            token = token_create(OPERATOR);
-            // Trouver l'opérateur correspondant
-            int j = 0;
-            while (operations[j].function != NULL && operations[j].name != NULL) {
-                if (strcmp(token_str, operations[j].name) == 0) {
-                    token->value.operator = operations[j].function;
-                    break;
-                }
-                j++;
-            }
-            cellule->tokens = list_append(cellule->tokens, token);
+        //Faire une copie de la chaîne car strtok la modifie
+        char *formula_copy = strdup(formula);
+        if (formula_copy == NULL) {
+            return;
         }
         
-        // Passer au token suivant
-        token_str = strtok(NULL, " \t\n\r");
+        //On utilise strtok pour séparer notre chaine de caractère en plusieurs éléments par un séparateur
+        char *token_str = strtok(formula_copy, " \t\n\r");
+        
+        while (token_str != NULL) {
+            s_token *token = NULL;
+            
+            if (is_number(token_str)) {
+                // C'est un nombre
+                token = token_create(VALUE);
+                sscanf(token_str, "%lf", &token->value.cst);
+                cellule->tokens = list_append(cellule->tokens, token);
+                
+            } else if (is_cell_reference(token_str)) {
+                // C'est une référence de cellule
+                token = token_create(REF);
+                token->value.ref = get_cell_by_reference(token_str);
+                cellule->tokens = list_append(cellule->tokens, token);
+                
+            } else if (is_operator(token_str)) {
+                // C'est un opérateur
+                token = token_create(OPERATOR);
+                // Trouver l'opérateur correspondant
+                int j = 0;
+                while (operations[j].function != NULL && operations[j].name != NULL) {
+                    if (strcmp(token_str, operations[j].name) == 0) {
+                        token->value.operator = operations[j].function;
+                        break;
+                    }
+                    j++;
+                }
+                cellule->tokens = list_append(cellule->tokens, token);
+            }
+            
+            // Passer au token suivant
+            token_str = strtok(NULL, " \t\n\r");
+        }
+        
+        // Libérer la copie de la formule
+        free(formula_copy);
+        
+    } else if (is_number(cellule->chaine)) {
+        // Cas 2 : Nombre simple (ex: "3.2" ou "5")
+        s_token *token = token_create(VALUE);
+        sscanf(cellule->chaine, "%lf", &token->value.cst);
+        cellule->tokens = list_append(cellule->tokens, token);
+        cellule->value = token->value.cst;  // Mettre directement la valeur
+        
+    } else {
+        // Cas 3 : Texte, vide ou invalide -> 0.0
+        cellule->value = 0.0;
     }
-    
-    // Libérer la copie de la formule
-    free(formula_copy);
 }
 
 /**

@@ -63,10 +63,10 @@ void test_parse_operators() {
     printf("\n=== Test 2: Parsing d'opérateurs ===\n");
     
     const char *formulas[] = {
-        "5 3 +",
-        "10 2 -",
-        "4 5 *",
-        "20 4 /"
+        "=5 3 +",
+        "=10 2 -",
+        "=4 5 *",
+        "=20 4 /"
     };
     
     for (int i = 0; i < 4; i++) {
@@ -84,9 +84,9 @@ void test_parse_complex() {
     printf("\n=== Test 3: Parsing de formules complexes ===\n");
     
     const char *formulas[] = {
-        "5 3 + 2 *",
-        "10 2 / 3 -",
-        "1.5 2.5 + 3 *"
+        "=5 3 + 2 *",
+        "=10 2 / 3 -",
+        "=1.5 2.5 + 3 *"
     };
     
     for (int i = 0; i < 3; i++) {
@@ -105,7 +105,7 @@ void test_evaluate_simple() {
     
     // Test: 5 3 + (doit donner 8)
     s_cell *cell1 = cell_create();
-    cell1->chaine = strdup("5 3 +");
+    cell1->chaine = strdup("=5 3 +");
     analyse_chaine_cellule(cell1);
     double result1 = evaluate_cell(cell1);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 8.00)\n", cell1->chaine, result1);
@@ -113,7 +113,7 @@ void test_evaluate_simple() {
     
     // Test: 10 2 - (doit donner 8)
     s_cell *cell2 = cell_create();
-    cell2->chaine = strdup("10 2 -");
+    cell2->chaine = strdup("=10 2 -");
     analyse_chaine_cellule(cell2);
     double result2 = evaluate_cell(cell2);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 8.00)\n", cell2->chaine, result2);
@@ -121,7 +121,7 @@ void test_evaluate_simple() {
     
     // Test: 4 5 * (doit donner 20)
     s_cell *cell3 = cell_create();
-    cell3->chaine = strdup("4 5 *");
+    cell3->chaine = strdup("=4 5 *");
     analyse_chaine_cellule(cell3);
     double result3 = evaluate_cell(cell3);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 20.00)\n", cell3->chaine, result3);
@@ -129,7 +129,7 @@ void test_evaluate_simple() {
     
     // Test: 20 4 / (doit donner 5)
     s_cell *cell4 = cell_create();
-    cell4->chaine = strdup("20 4 /");
+    cell4->chaine = strdup("=20 4 /");
     analyse_chaine_cellule(cell4);
     double result4 = evaluate_cell(cell4);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 5.00)\n", cell4->chaine, result4);
@@ -142,7 +142,7 @@ void test_evaluate_complex() {
     
     // Test: 5 3 + 2 * (doit donner 16: (5+3)*2)
     s_cell *cell1 = cell_create();
-    cell1->chaine = strdup("5 3 + 2 *");
+    cell1->chaine = strdup("=5 3 + 2 *");
     analyse_chaine_cellule(cell1);
     double result1 = evaluate_cell(cell1);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 16.00)\n", cell1->chaine, result1);
@@ -150,7 +150,7 @@ void test_evaluate_complex() {
     
     // Test: 10 2 / 3 - (doit donner 2: 10/2-3 = 5-3)
     s_cell *cell2 = cell_create();
-    cell2->chaine = strdup("10 2 / 3 -");
+    cell2->chaine = strdup("=10 2 / 3 -");
     analyse_chaine_cellule(cell2);
     double result2 = evaluate_cell(cell2);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 2.00)\n", cell2->chaine, result2);
@@ -158,7 +158,7 @@ void test_evaluate_complex() {
     
     // Test: 1.5 2.5 + 3 * (doit donner 12: (1.5+2.5)*3 = 4*3)
     s_cell *cell3 = cell_create();
-    cell3->chaine = strdup("1.5 2.5 + 3 *");
+    cell3->chaine = strdup("=1.5 2.5 + 3 *");
     analyse_chaine_cellule(cell3);
     double result3 = evaluate_cell(cell3);
     printf("Formule: \"%s\" => Résultat: %.2f (attendu: 12.00)\n", cell3->chaine, result3);
@@ -185,7 +185,8 @@ void test_utilities() {
     // Test is_cell_reference
     printf("is_cell_reference(\"A1\"): %d (attendu: 1)\n", is_cell_reference("A1"));
     printf("is_cell_reference(\"B10\"): %d (attendu: 1)\n", is_cell_reference("B10"));
-    printf("is_cell_reference(\"AA23\"): %d (attendu: 1)\n", is_cell_reference("AA23"));
+    printf("is_cell_reference(\"Z99\"): %d (attendu: 1)\n", is_cell_reference("Z99"));
+    printf("is_cell_reference(\"AA23\"): %d (attendu: 0)\n", is_cell_reference("AA23"));
     printf("is_cell_reference(\"1A\"): %d (attendu: 0)\n", is_cell_reference("1A"));
     printf("is_cell_reference(\"ABC\"): %d (attendu: 0)\n", is_cell_reference("ABC"));
 }
@@ -211,7 +212,7 @@ void test_cell_references() {
     // Note: Pour l'instant, get_cell_by_reference retourne NULL
     // Ce test sera complété quand la gestion de la feuille sera implémentée
     s_cell *cellC1 = cell_create();
-    cellC1->chaine = strdup("A1 B1 +");
+    cellC1->chaine = strdup("=A1 B1 +");
     analyse_chaine_cellule(cellC1);
     
     // Manuellement injecter les références pour le test
