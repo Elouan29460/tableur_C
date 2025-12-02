@@ -57,13 +57,14 @@ extern s_operation operations[];
 // Création et destruction
 s_cell *cell_create(void);
 void cell_destroy(s_cell *cell);
+void cell_setStr(s_cell *cell, const char *formule);
 s_token *token_create(token_type type);
 void token_destroy(s_token *token);
 
 // Gestion de la feuille
 s_sheet *sheet_create(int nb_rows, int nb_cols);
 void sheet_destroy(s_sheet *sheet);
-void feuille_setCell(s_cell *cell,const char* nom);
+void feuille_setCell(s_cell *cell, const char *nom);
 
 
 

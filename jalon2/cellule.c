@@ -102,6 +102,17 @@ void cell_destroy(s_cell *cell) {
     free(cell);
 }
 
+void cell_setStr(s_cell *cell, const char *formule) {
+    if (cell == NULL || formule == NULL) {
+        return;
+    }
+    if (cell->chaine != NULL) {
+        free(cell->chaine);
+    }
+    cell->chaine = strdup(formule);
+}
+
+
 s_token *token_create(token_type type) {
     s_token *token = (s_token *)malloc(sizeof(s_token));
     if (token == NULL) {
@@ -180,20 +191,19 @@ void sheet_destroy(s_sheet *s) {
     free(s);
 }
 
-void feuille_setCell(s_cell *cell,const char* nom) {
+void feuille_setCell(s_cell *cell, const char* nom) {
     if (sheet == NULL || nom == NULL || !is_cell_reference(nom)) {
-        return NULL;
+        return;
     }
     
     int col = nom[0] - 'A';
     int row = atoi(&nom[1]) - 1;
     
-    //pas de dépassement
     if (row < 0 || row >= sheet->nb_rows || col < 0 || col >= sheet->nb_cols) {
-        return NULL;
+        return;
     }
 
-    sheet->cells_2d[col][row] = cell;
+    sheet->cells_2d[row][col] = cell;
 }
 
 /**
