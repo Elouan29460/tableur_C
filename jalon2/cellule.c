@@ -394,10 +394,16 @@ double evaluate_cell(s_cell *cell) {
         current = list_next(current);
     }
     
-    double result = STACK_POP(eval_stack, double);
+    int nb_elements = STACK_MEM_USED(eval_stack);
     
-    STACK_REMOVE(eval_stack);
-    
-    cell->value = result;
-    return result;
+    if (nb_elements == 1) {
+        double result = STACK_POP(eval_stack, double);
+        STACK_REMOVE(eval_stack);
+        cell->value = result;
+        return result;
+    } else {
+        STACK_REMOVE(eval_stack);
+        cell->value = 0.0;
+        return 0.0;
+    }
 }
