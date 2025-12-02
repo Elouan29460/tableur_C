@@ -318,7 +318,9 @@ void analyse_chaine_cellule(s_cell *cellule) {
                 //REF
                 token = token_create(REF);
                 token->value.ref = get_cell_by_reference(token_str);
+                cellule->dependencies = list_append(cellule->dependencies, get_cell_by_reference(token_str));
                 cellule->tokens = list_append(cellule->tokens, token);
+                
                 
             } else if (is_operator(token_str)) {
                 //OPERATEUR

@@ -104,8 +104,8 @@ void test_operators() {
         {"=2 cos 4 cos +", -1.07},
         {"=B1 B1 +",35.76},
         {"=Z10 cos", 0.99},
-        {"=D2 10 +", 10.0},
-        {"poulêt roti", 0.0},
+        {"=D2 10 +", 10.0}, //D2 existe pas
+        {"poulet rôti", 0.0},
         {"", 0.0}
     };
     
