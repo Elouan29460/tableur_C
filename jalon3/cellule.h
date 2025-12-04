@@ -12,7 +12,7 @@ typedef struct s_cell {
     node_t *dependencies;  
     node_t *successors;
     int degre_negatif;
-    int estPassee;
+    int estPassee; //booléen
 } s_cell;
 
 // Types de jetons

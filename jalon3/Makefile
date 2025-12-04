@@ -8,8 +8,8 @@ LDFLAGS = -lm
 JALON1_DIR = ../jalon1
 
 # Fichiers sources
-SOURCES = cellule.c graphe.c stack.c $(JALON1_DIR)/liste.c
-OBJECTS = cellule.o graphe.o stack.o liste.o
+SOURCES = cellule.c stack.c $(JALON1_DIR)/liste.c
+OBJECTS = cellule.o stack.o liste.o
 
 # Fichiers de test
 TEST_STACK = testStack
@@ -25,7 +25,7 @@ testStack.o: testStack.c stack.h
 	$(CC) $(CFLAGS) -c testStack.c
 
 # Compilation du test de graphe
-$(TEST_GRAPHE): testGraphe.o cellule.o graphe.o stack.o liste.o
+$(TEST_GRAPHE): testGraphe.o cellule.o stack.o liste.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 testGraphe.o: testGraphe.c cellule.h stack.h $(JALON1_DIR)/liste.h
@@ -33,9 +33,6 @@ testGraphe.o: testGraphe.c cellule.h stack.h $(JALON1_DIR)/liste.h
 
 cellule.o: cellule.c cellule.h stack.h $(JALON1_DIR)/liste.h
 	$(CC) $(CFLAGS) -c cellule.c
-
-graphe.o: graphe.c cellule.h $(JALON1_DIR)/liste.h
-	$(CC) $(CFLAGS) -c graphe.c
 
 stack.o: stack.c stack.h
 	$(CC) $(CFLAGS) -c stack.c

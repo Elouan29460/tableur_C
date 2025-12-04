@@ -419,3 +419,175 @@ double evaluate_cell(s_cell *cell) {
         return 0.0;
     }
 }
+
+
+
+
+
+
+
+
+
+/**
+ * TRI TOPOLOGIQUE
+ */
+
+
+void maj_dependances(s_cell *cell) {
+    if (cell == NULL) return;
+    
+    node_t *dep = cell->dependencies;
+    while (dep != NULL) {
+        s_cell *pred = (s_cell *)list_get_data(dep);
+        
+        node_t *new_succ = NULL;
+        node_t *curr = pred->successors;
+        while (curr != NULL) {
+            if (list_get_data(curr) != cell) {
+                new_succ = list_append(new_succ, list_get_data(curr));
+            }
+            curr = list_next(curr);
+        }
+        list_destroy(pred->successors);
+        pred->successors = new_succ;
+        
+        dep = list_next(dep);
+    }
+    
+    list_destroy(cell->dependencies);
+    cell->dependencies = NULL;
+    
+    node_t *tok = cell->tokens;
+    while (tok != NULL) {
+        s_token *token = (s_token *)list_get_data(tok);
+        if (token->type == REF && token->value.ref != NULL) {
+            s_cell *ref = token->value.ref;
+            
+            int existe = 0;
+            node_t *check = cell->dependencies;
+            while (check != NULL) {
+                if (list_get_data(check) == ref) {
+                    existe = 1;
+                    break;
+                }
+                check = list_next(check);
+            }
+            
+            if (!existe) {
+                cell->dependencies = list_append(cell->dependencies, ref);
+                ref->successors = list_append(ref->successors, cell);
+            }
+        }
+        tok = list_next(tok);
+    }
+}
+
+void evaluation_successeurs(s_cell *cell) {
+    if (cell == NULL || cell->successors == NULL) return;
+    
+    node_t *subgraph = NULL;
+    node_t *to_visit = NULL;
+    
+    node_t *s = cell->successors;
+    while (s != NULL) {
+        to_visit = list_append(to_visit, list_get_data(s));
+        s = list_next(s);
+    }
+    
+    while (to_visit != NULL) {
+        s_cell *curr = (s_cell *)list_get_data(to_visit);
+        to_visit = list_next(to_visit);
+        
+        int existe = 0;
+        node_t *check = subgraph;
+        while (check != NULL) {
+            if (list_get_data(check) == curr) {
+                existe = 1;
+                break;
+            }
+            check = list_next(check);
+        }
+        
+        if (!existe) {
+            subgraph = list_append(subgraph, curr);
+            
+            node_t *next = curr->successors;
+            while (next != NULL) {
+                to_visit = list_append(to_visit, list_get_data(next));
+                next = list_next(next);
+            }
+        }
+    }
+    
+    if (subgraph == NULL) return;
+    
+    node_t *curr = subgraph;
+    while (curr != NULL) {
+        s_cell *c = (s_cell *)list_get_data(curr);
+        c->estPassee = 0;
+        c->degre_negatif = 0;
+        
+        node_t *dep = c->dependencies;
+        while (dep != NULL) {
+            s_cell *pred = (s_cell *)list_get_data(dep);
+            
+            node_t *check = subgraph;
+            while (check != NULL) {
+                if (list_get_data(check) == pred) {
+                    c->degre_negatif++;
+                    break;
+                }
+                check = list_next(check);
+            }
+            dep = list_next(dep);
+        }
+        
+        curr = list_next(curr);
+    }
+    
+    node_t *liste = NULL;
+    curr = subgraph;
+    while (curr != NULL) {
+        s_cell *c = (s_cell *)list_get_data(curr);
+        if (c->degre_negatif == 0) {
+            liste = list_append(liste, c);
+        }
+        curr = list_next(curr);
+    }
+    
+    //Partie tri topologique
+    while (liste != NULL) {
+        s_cell *c = (s_cell *)list_get_data(liste);
+        liste = list_next(liste);
+        
+        if (c->estPassee) continue;
+        c->estPassee = 1;
+        
+        evaluate_cell(c);
+        
+        node_t *next = c->successors;
+        while (next != NULL) {
+            s_cell *sj = (s_cell *)list_get_data(next);
+            
+            node_t *check = subgraph;
+            int dans_sg = 0;
+            while (check != NULL) {
+                if (list_get_data(check) == sj) {
+                    dans_sg = 1;
+                    break;
+                }
+                check = list_next(check);
+            }
+            
+            if (dans_sg && !sj->estPassee) {
+                sj->degre_negatif--;
+                if (sj->degre_negatif == 0) {
+                    liste = list_append(liste, sj);
+                }
+            }
+            
+            next = list_next(next);
+        }
+    }
+    list_destroy(subgraph);
+}

@@ -58,7 +58,7 @@ void test_graphe_simple() {
     sheet = NULL;
 }
 
-void test_graphe_diamant() {
+void test_graphe_simple2() {
     printf("\nTEST 2\n");
     printf("A1=10, B1=A1*2, C1=A1*3, D1=B1+C1\n\n");
     
@@ -175,7 +175,7 @@ void test_graphe_chaine() {
 
 int main(void) {    
     test_graphe_simple();
-    test_graphe_diamant();
+    test_graphe_simple2();
     test_graphe_chaine();
     return 0;
 }
