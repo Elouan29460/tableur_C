@@ -78,11 +78,11 @@ void analyse_chaine_cellule(s_cell *cellule);
 double evaluate_cell(s_cell *cell);
 
 // Gestion du graphe de dépendances
-void add_successor(s_cell *predecessor, s_cell *successor);
-void remove_successor(s_cell *predecessor, s_cell *successor);
-void update_dependencies(s_cell *cell);
-void reevaluate_successors(s_cell *cell);
-int compute_negative_degree(s_cell *cell, node_t *subgraph);
+void ajouter_successeur(s_cell *predecessor, s_cell *successor);
+void retirer_successeur(s_cell *predecessor, s_cell *successor);
+void maj_dependances(s_cell *cell);
+void evaluation_successeurs(s_cell *cell);
+int calculer_degre_negatif(s_cell *cell, node_t *subgraph);
 
 // Opérateurs de base
 void addition(my_stack_t *eval);

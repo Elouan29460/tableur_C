@@ -6,7 +6,7 @@
  * Ajoute une relation de succession entre deux cellules
  * predecessor -> successor (successor dépend de predecessor)
  */
-void add_successor(s_cell *predecessor, s_cell *successor) {
+void ajouter_successeur(s_cell *predecessor, s_cell *successor) {
     if (predecessor == NULL || successor == NULL) return;
     
     // Vérifier si le successeur n'est pas déjà dans la liste
@@ -25,7 +25,7 @@ void add_successor(s_cell *predecessor, s_cell *successor) {
 /**
  * Retire une relation de succession
  */
-void remove_successor(s_cell *predecessor, s_cell *successor) {
+void retirer_successeur(s_cell *predecessor, s_cell *successor) {
     if (predecessor == NULL || successor == NULL) return;
     
     // Reconstruire la liste sans le successeur à retirer
@@ -48,13 +48,13 @@ void remove_successor(s_cell *predecessor, s_cell *successor) {
  * Met à jour les dépendances et les successeurs d'une cellule
  * après modification de sa formule
  */
-void update_dependencies(s_cell *cell) {
+void maj_dependances(s_cell *cell) {
     if (cell == NULL) return;
     
     node_t *old_dep = cell->dependencies;
     while (old_dep != NULL) {
         s_cell *pred = (s_cell *)list_get_data(old_dep);
-        remove_successor(pred, cell);
+        retirer_successeur(pred, cell);
         old_dep = list_next(old_dep);
     }
     
@@ -83,7 +83,7 @@ void update_dependencies(s_cell *cell) {
             if (!already_present) {
                 cell->dependencies = list_append(cell->dependencies, ref_cell);
                 // Ajouter cette cellule aux successeurs de la cellule référencée
-                add_successor(ref_cell, cell);
+                ajouter_successeur(ref_cell, cell);
             }
         }
         
@@ -95,7 +95,7 @@ void update_dependencies(s_cell *cell) {
  * Calcule le degré négatif d'une cellule dans un sous-graphe
  * (nombre de prédécesseurs présents dans le sous-graphe)
  */
-int compute_negative_degree(s_cell *cell, node_t *subgraph) {
+int calculer_degre_negatif(s_cell *cell, node_t *subgraph) {
     if (cell == NULL) return 0;
     
     int degree = 0;
@@ -123,7 +123,7 @@ int compute_negative_degree(s_cell *cell, node_t *subgraph) {
 /**
  * Construit le sous-graphe des successeurs directs et indirects d'une cellule
  */
-static node_t *build_subgraph(s_cell *cell) {
+static node_t *sous_graphe(s_cell *cell) {
     if (cell == NULL) return NULL;
     
     node_t *subgraph = NULL;
@@ -173,18 +173,18 @@ static node_t *build_subgraph(s_cell *cell) {
  * Implémente l'algorithme de la figure 3
  * Utilise degre_negatif et estPassee dans la structure s_cell
  */
-void reevaluate_successors(s_cell *cell) {
+void evaluation_successeurs(s_cell *cell) {
     if (cell == NULL) return;
     
     // 1. Construire le sous-graphe X des successeurs
-    node_t *subgraph = build_subgraph(cell);
+    node_t *subgraph = sous_graphe(cell);
     if (subgraph == NULL) return; // Pas de successeurs
     
     // 2. Initialisation : calculer les degrés négatifs et marquer comme non passées
     node_t *current = subgraph;
     while (current != NULL) {
         s_cell *s = (s_cell *)list_get_data(current);
-        s->degre_negatif = compute_negative_degree(s, subgraph);
+        s->degre_negatif = calculer_degre_negatif(s, subgraph);
         s->estPassee = 0;
         current = list_next(current);
     }
