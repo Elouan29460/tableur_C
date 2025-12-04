@@ -2,33 +2,26 @@
 #include <stdlib.h>
 #include "cellule.h"
 
-/**
- * Ajoute une relation de succession entre deux cellules
- * predecessor -> successor (successor dépend de predecessor)
- */
+
 void ajouter_successeur(s_cell *predecessor, s_cell *successor) {
     if (predecessor == NULL || successor == NULL) return;
     
-    // Vérifier si le successeur n'est pas déjà dans la liste
+    // check si pas deja present
     node_t *current = predecessor->successors;
     while (current != NULL) {
         if (list_get_data(current) == successor) {
-            return; // Déjà présent
+            return;
         }
         current = list_next(current);
     }
     
-    // Ajouter le successeur
     predecessor->successors = list_append(predecessor->successors, successor);
 }
 
-/**
- * Retire une relation de succession
- */
+
 void retirer_successeur(s_cell *predecessor, s_cell *successor) {
     if (predecessor == NULL || successor == NULL) return;
     
-    // Reconstruire la liste sans le successeur à retirer
     node_t *new_list = NULL;
     node_t *current = predecessor->successors;
     
@@ -44,10 +37,7 @@ void retirer_successeur(s_cell *predecessor, s_cell *successor) {
     predecessor->successors = new_list;
 }
 
-/**
- * Met à jour les dépendances et les successeurs d'une cellule
- * après modification de sa formule
- */
+//ON met à jour les successeurs et predecesseurs aprys modif
 void maj_dependances(s_cell *cell) {
     if (cell == NULL) return;
     
@@ -61,15 +51,13 @@ void maj_dependances(s_cell *cell) {
     list_destroy(cell->dependencies);
     cell->dependencies = NULL;
     
-    // 3. Construire la nouvelle liste de dépendances à partir des tokens
+    //nouvelle liste
     node_t *current = cell->tokens;
     while (current != NULL) {
         s_token *token = (s_token *)list_get_data(current);
         
         if (token->type == REF && token->value.ref != NULL) {
             s_cell *ref_cell = token->value.ref;
-            
-            // Ajouter à la liste des dépendances si pas déjà présent
             int already_present = 0;
             node_t *check = cell->dependencies;
             while (check != NULL) {
@@ -79,32 +67,23 @@ void maj_dependances(s_cell *cell) {
                 }
                 check = list_next(check);
             }
-            
             if (!already_present) {
                 cell->dependencies = list_append(cell->dependencies, ref_cell);
-                // Ajouter cette cellule aux successeurs de la cellule référencée
                 ajouter_successeur(ref_cell, cell);
             }
         }
-        
         current = list_next(current);
     }
 }
 
-/**
- * Calcule le degré négatif d'une cellule dans un sous-graphe
- * (nombre de prédécesseurs présents dans le sous-graphe)
- */
+
 int calculer_degre_negatif(s_cell *cell, node_t *subgraph) {
     if (cell == NULL) return 0;
-    
     int degree = 0;
     node_t *dep = cell->dependencies;
     
     while (dep != NULL) {
         s_cell *pred = (s_cell *)list_get_data(dep);
-        
-        // Vérifier si ce prédécesseur est dans le sous-graphe
         node_t *check = subgraph;
         while (check != NULL) {
             if (list_get_data(check) == pred) {
@@ -113,23 +92,18 @@ int calculer_degre_negatif(s_cell *cell, node_t *subgraph) {
             }
             check = list_next(check);
         }
-        
         dep = list_next(dep);
     }
-    
     return degree;
 }
 
-/**
- * Construit le sous-graphe des successeurs directs et indirects d'une cellule
- */
+
 static node_t *sous_graphe(s_cell *cell) {
     if (cell == NULL) return NULL;
     
     node_t *subgraph = NULL;
     node_t *to_visit = NULL;
     
-    // Ajouter tous les successeurs directs à visiter
     node_t *succ = cell->successors;
     while (succ != NULL) {
         s_cell *successor = (s_cell *)list_get_data(succ);
@@ -137,12 +111,10 @@ static node_t *sous_graphe(s_cell *cell) {
         succ = list_next(succ);
     }
     
-    // Parcours en largeur pour trouver tous les successeurs
     while (to_visit != NULL) {
         s_cell *current = (s_cell *)list_get_data(to_visit);
         to_visit = list_next(to_visit);
         
-        // Vérifier si déjà dans le sous-graphe
         int already_in = 0;
         node_t *check = subgraph;
         while (check != NULL) {
@@ -156,7 +128,6 @@ static node_t *sous_graphe(s_cell *cell) {
         if (!already_in) {
             subgraph = list_append(subgraph, current);
             
-            // Ajouter ses successeurs à visiter
             node_t *curr_succ = current->successors;
             while (curr_succ != NULL) {
                 to_visit = list_append(to_visit, list_get_data(curr_succ));
@@ -168,19 +139,14 @@ static node_t *sous_graphe(s_cell *cell) {
     return subgraph;
 }
 
-/**
- * Réévalue tous les successeurs d'une cellule en utilisant le tri topologique
- * Implémente l'algorithme de la figure 3
- * Utilise degre_negatif et estPassee dans la structure s_cell
- */
 void evaluation_successeurs(s_cell *cell) {
     if (cell == NULL) return;
     
-    // 1. Construire le sous-graphe X des successeurs
+    //On construit le sous graphe
     node_t *subgraph = sous_graphe(cell);
-    if (subgraph == NULL) return; // Pas de successeurs
+    if (subgraph == NULL) return;
     
-    // 2. Initialisation : calculer les degrés négatifs et marquer comme non passées
+    //On calcule les degres négatifs pour tous
     node_t *current = subgraph;
     while (current != NULL) {
         s_cell *s = (s_cell *)list_get_data(current);
@@ -189,7 +155,7 @@ void evaluation_successeurs(s_cell *cell) {
         current = list_next(current);
     }
     
-    // Créer la liste des cellules de degré 0
+    //Liste des celluels à calculer maintenant
     node_t *liste = NULL;
     current = subgraph;
     while (current != NULL) {
@@ -200,27 +166,17 @@ void evaluation_successeurs(s_cell *cell) {
         current = list_next(current);
     }
     
-    // 3. Itération : évaluation dans l'ordre topologique
+    //Evaluer dans l'ordre topologique
     while (liste != NULL) {
-        // Retirer un sommet de la liste
         s_cell *s = (s_cell *)list_get_data(liste);
         liste = list_next(liste);
-        
-        // Vérifier si déjà passée (sécurité)
         if (s->estPassee) continue;
-        
-        // Marquer comme passée
         s->estPassee = 1;
-        
-        // Évaluer la cellule
         evaluate_cell(s);
-        
-        // Pour chaque successeur de s
         node_t *succ = s->successors;
         while (succ != NULL) {
             s_cell *sj = (s_cell *)list_get_data(succ);
             
-            // Vérifier si ce successeur est dans le sous-graphe
             node_t *check = subgraph;
             int in_subgraph = 0;
             while (check != NULL) {
@@ -230,12 +186,10 @@ void evaluation_successeurs(s_cell *cell) {
                 }
                 check = list_next(check);
             }
-            
             if (in_subgraph) {
-                // Décrémenter le degré négatif
                 sj->degre_negatif--;
                 
-                // Si degré devient 0, ajouter à la liste
+                //degre 0 = ajout dans la liste à calculée
                 if (sj->degre_negatif == 0) {
                     liste = list_append(liste, sj);
                 }
@@ -245,6 +199,5 @@ void evaluation_successeurs(s_cell *cell) {
         }
     }
     
-    // Nettoyage
     list_destroy(subgraph);
 }
